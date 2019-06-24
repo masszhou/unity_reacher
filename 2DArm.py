@@ -176,6 +176,7 @@ class ArmEnv:
         return self.state, reward, done, info
 
     def reset(self, goal=None):
+        self.viewer = None
         if goal is None:
             self.goal_cbox = np.array([100, 100, 80, 80], dtype=np.float)  # blue box bbox=(x,y,w,h)
         self.goal_bbox = cbox_to_bbox(self.goal_cbox)
