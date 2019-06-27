@@ -7,9 +7,9 @@ import numpy as np
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class Policy(nn.Module):
+class DiscretePolicy(nn.Module):
     def __init__(self, state_size, action_size):
-        super(Policy, self).__init__()
+        super(DiscretePolicy, self).__init__()
         self.fc1 = nn.Linear(state_size, 16)
         self.fc2 = nn.Linear(16, action_size)
 
@@ -20,8 +20,11 @@ class Policy(nn.Module):
 
 
 class Reinforce:
-    def __init__(self, state_size, action_size, lr=0.01):
-        self.policy = Policy(state_size, action_size).to(device)
+    def __init__(self, policy=None, lr=0.01):
+        if policy is None:
+            self.policy = DiscretePolicy(4, 2).to(device)
+        else:
+            self.policy = policy
         self.optimizer = optim.Adam(self.policy.parameters(), lr)
 
     def act(self, state):
