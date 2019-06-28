@@ -58,14 +58,15 @@ class DDPG:
         self.noise.reset()
 
     def act(self, state, add_noise=True):
-        state = torch.from_numpy(state).float().to(device)
+        # for single agent only
+        state = torch.from_numpy(state).float().unsqueeze(0).to(device)
         self.actor_local.eval()  # must set to eval mode, since BatchNorm used
         with torch.no_grad():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
             action += self.noise.sample()
-        return np.clip(action, -1, 1)
+        return np.clip(action.squeeze(), -1, 1)
 
     def step(self, state, action, reward, next_state, done):
         self.memory.add(state, action, reward, next_state, done)
