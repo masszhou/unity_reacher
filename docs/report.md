@@ -48,11 +48,12 @@ $$
 ##### Additional explanation
 * for a **single** trajectory, the gradient is equivalent to derivative on cross-entropy loss
 $$
-\begin{eqnarray}
-\nabla_{\theta}U(\theta) &=& \nabla_{\theta}P(\tau,\theta)R(\tau) \\
-&=& \sum_{t=0}^H \nabla_{\theta} \log \pi_{\theta}(a_t|s_t)R(\tau)
-\end{eqnarray}
+\begin{aligned}
+\nabla_{\theta}U(\theta) &= \nabla_{\theta}P(\tau,\theta)R(\tau) \\
+&= \sum_{t=0}^H \nabla_{\theta} \log \pi_{\theta}(a_t|s_t)R(\tau)
+\end{aligned}
 $$
+
 * Pseudocode
 ```python
 policy_loss = []
@@ -60,6 +61,7 @@ for log_prob in saved_log_probs:
     policy_loss.append(-log_prob * R)
 policy_loss = torch.cat(policy_loss).sum()
 ```
+
 ##### Algorithm
 1. initialize a random $\pi_{\theta}(a\vert s)$ 
 2. collect $m$ trajectories $\{\tau^{(1)}, \tau^{(2)}, \dots, \tau^{(m)}\}$ with current policy $\pi_{\theta}$
@@ -89,6 +91,8 @@ $$
 <img src="../imgs/important_sampling.jpeg"  width="305" />
 
 * I agree this is too small to read, so I prefer understand this with an example. :-)
+
+
 ##### an Example instead of Explanation
 * we have $f(1)=2, f(2)=3, f(3)=4$ with $x\sim p, p(x=1)=\frac{1}{3},p(x=2)=\frac{1}{3},p(x=3)=\frac{1}{3}$
 * we denote $x\sim p$ as old policy, and we have the expectation of **old** samples as
@@ -99,12 +103,13 @@ $$
 * Now we $x'\sim q$ as new policy, and we know $q(x=1)=0,q(x=2)=\frac{1}{3},q(x=3)=\frac{2}{3}$
 * So we want to use old samples to estimate the expectation of new policy $q$.
 $$
-\begin{eqnarray}
-\mathbb{E}_q[f(x)]&=&\mathbb{E}_p[f(x)\frac{q(x)}{p(x)}] \\
-&=& \mathbb{E}_p[f(x=2)]\frac{q(x=2)}{p(x=2)}+\mathbb{E}_p[f(x=3)]\frac{q(x=3)}{p(x=3)}\\
-&=&\frac{1}{3}\cdot3\cdot1+\frac{1}{3}\cdot4\cdot2=\frac{11}{3}
-\end{eqnarray}
+\begin{aligned}
+\mathbb{E}_q[f(x)]&=\mathbb{E}_p[f(x)\frac{q(x)}{p(x)}] \\
+&= \mathbb{E}_p[f(x=2)]\frac{q(x=2)}{p(x=2)}+\mathbb{E}_p[f(x=3)]\frac{q(x=3)}{p(x=3)}\\
+&=\frac{1}{3}\cdot3\cdot1+\frac{1}{3}\cdot4\cdot2=\frac{11}{3}
+\end{aligned}
 $$
+
 * which is the same with
 $$
 \mathbb{E}_q[f(x)]
@@ -115,6 +120,8 @@ $$
 
 ### 1.5 Trust region policy optimization (TRPO) 
 * Importance sampling and literally constrained by KL-divergence
+
+
 ### 1.6 Proximal Policy Optimization (PPO)
 * Importance sampling and use clip function to approximately ensure the similarity.
 
@@ -124,11 +131,16 @@ Actor-Critic is architecture which combined policy-based method and value-based 
 
 ### 2.1 Asynchronous Advantage Actor-Critic (A3C)
 * I plan to write this section in next project
+
+
 ### 2.2 synchronous Advantage Actor-Critic (A2C)
 * I plan to write this section in next project
+
+
 ### 2.3 Deep Deterministic Policy Gradient (DDPG)
 DDPG was used for this Unity-Reacher project.
 I must elaborate DDPG.
+
 * DDPG has a Actor-Critic Architecure
 * Actor Network in DDPG is deterministic **NOT** stochastic. We can get action directly, no need to sample from policy.
 * Actor Network is $\operatorname{argmax}_a Q_{\theta}(s)$, given $s$, output $a$, where $a$ let $Q(s)$ is max $Q(s,a)$
@@ -138,30 +150,38 @@ I must elaborate DDPG.
 * start a trajectory
 * use $s_t$ as input for Actor Network, then we get $a_t$ from Actor Network, i.e. $\operatorname{argmax}_a Q_{\theta}(s)$
 * feedback $a_t$ to Env, then we have $r_{t+1}$, $s_{t+1}$
-* train Critic Netwrok，input $(s_t,a_t,r_{t+1},s_{t+1})$ to Critic Network, train Critic Network like DQN. Let Critic Network evaluate better $V_{\theta}(s, a)$.
+* train Critic Netwrok, input $(s_t,a_t,r_{t+1},s_{t+1})$ to Critic Network, train Critic Network like DQN. Let Critic Network evaluate better $V_{\theta}(s, a)$.
   * the difference between DQN and Critic Network is, DQN outputs discrete $Q[s][a]$, we need a max operation to find $\max_a Q(s)$. But Critic Network outputs $a$ with $\operatorname{argmax}_a Q(s)$ directly. 
   * more explanation with codes 
+
 ```python
 # DQN use torch.max to find max Q
 Q_next = target_net(s_next).detach()
 Q_target = r + gamma * torch.max(Q_next, 1)[0].view(-1, 1)
 
-# DDPG use ActorNetwork to find a w.r.t max Q, put a back to CriticNetwork to calculate q(s,a) 
+# DDPG use ActorNetwork to find a w.r.t max Q, 
+# put a back to CriticNetwork to calculate q(s,a) 
 actions_next = actor_target(next_states)
 Q_targets_next = critic_target(next_states, actions_next)
 # Compute Q targets for current states (y_i)
 Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 ```
+
 * Train ActorNetwork
   * use output of CriticNetwork $V_{\theta}(s, a)$ as baseline or target
-  * just use the basic gradient ascent to optimize $\min_{\theta_\text{actor}} | \operatorname{actor}(s) - V(s, a) | $
+  * just use the basic gradient ascent to optimize 
+  $$
+  \min_{\theta_\text{actor}} | \operatorname{actor}(s) - V(s, a) | 
+  $$
   * let the output of ActorNetwork closer to the baseline from CriticNetwork
   * Which is $a_{\text{actor}} = \operatorname{actor}(s)$ let $Q=\operatorname{critic}(s, a)$ is max $Q(s)$
 * Note, Train ActorNetwork and CriticNetwork both with local, target copy just like DQN
 
 # 2. Project Walk-through
 This project was solve by DDPG with batch sampling from 20 agents.
+
 ### 2.1 Dummy test with 2D Arm env
+
 ##### Motivation
 * I built a 2D n-bar arm environment to test my algorithms.
   * My implementation is based on the orginal 2D 2-bar arm program from Morvan Zhou'[post](https://github.com/MorvanZhou/train-robot-arm-from-scratch)
@@ -196,6 +216,7 @@ agent = DDPG(state_size=env.state_size,
              memory_size=30000,
              batch_size=32)
 ```
+
 ##### Observation
 * The tracking task from 2D n-bar arm began to converge with about 20-50 trajectories averagely.
 * and converged well with about 500 trajectories averagely.
@@ -205,6 +226,7 @@ agent = DDPG(state_size=env.state_size,
 ```
 python continuous_control_2d.py
 ```
+
 ##### Some Thinking
   * for simple task, we could set a large learning rate to accelerate training
   * hard copy between local/target network can NOT be too frequent, we need to update local network at least e.g. 5-10 times, then copy to target network.
