@@ -1,15 +1,29 @@
-[//]: # (Image References)
 
-[image1]: https://user-images.githubusercontent.com/10624937/43851024-320ba930-9aff-11e8-8493-ee547c6af349.gif "Trained Agent"
+- [Project Continuous Control](#Project-Continuous-Control)
+- [1. Introduction](#1-Introduction)
+    - [1.1 Background](#11-Background)
+    - [1.2 Distributed Training](#12-Distributed-Training)
+    - [1.3 Solving the Environment](#13-Solving-the-Environment)
+    - [1.3 Download environment](#13-Download-environment)
+- [2. Project Walk-through](#2-Project-Walk-through)
+    - [2.1 Dummy test with 2D Arm env](#21-Dummy-test-with-2D-Arm-env)
+        - [Motivation](#Motivation)
+        - [Setup](#Setup)
+        - [Observation](#Observation)
+        - [Replay](#Replay)
+        - [Some Thinking](#Some-Thinking)
+    - [2.2 Implementation of DDPG to solve Unity Reacher](#22-Implementation-of-DDPG-to-solve-Unity-Reacher)
+        - [Setup](#Setup-1)
+        - [Observation](#Observation-1)
+- [Other RL Works](#Other-RL-Works)
 
+# Project Continuous Control
 
-# 1. Project Continuous Control
-
-### 1.1. Introduction
-
+# 1. Introduction
+### 1.1 Background
 For this project, we will build agent to solve the modified [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) environment.
 
-![Trained Agent][image1]
+<img src="https://user-images.githubusercontent.com/10624937/43851024-320ba930-9aff-11e8-8493-ee547c6af349.gif"  width="500" />
 
 In this environment, a double-jointed arm can move to target locations. A reward of +0.1 is provided for each step that the agent's hand is in the goal location. Thus, the goal of your agent is to maintain its position at the target location for as many time steps as possible.
 
@@ -61,6 +75,7 @@ This project was solve by DDPG with batch sampling from 20 agents.
   * The tracking task is easier in my opinion.
 * an example animation of training 3-bars arm
 <img src="./imgs/arm2d_train.gif"  width="300" />
+
 * an example animation of results
 <img src="./imgs/arm2d_test.gif"  width="300" />
 
@@ -72,6 +87,7 @@ agent = DDPG(state_size=env.state_size,
              action_size=env.action_size,
              lr_actor=0.001,
              lr_critic=0.001,
+             update_every=10,
              gamma=0.9,
              tau=0.01,
              memory_size=30000,
@@ -97,12 +113,12 @@ python continuous_control_2d.py
 * Without sensing ability, both reward and states are a bit implicit.
 * since the solution space is much hard, we can encounter gradient explode/vanish more probably.
   * we can either clip the gradient
-```python
-self.critic_optimizer.zero_grad()
-critic_loss.backward()
-torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
-self.critic_optimizer.step()
-```
+  ```python
+  self.critic_optimizer.zero_grad()
+  critic_loss.backward()
+  torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
+  self.critic_optimizer.step()
+  ```
   * or add batchnorm between the layer
   * my intuitive thinking. clip the critic network is enough, since actor network take output of critic network as baseline.
   * In this repository, I used BN solution.
@@ -115,6 +131,7 @@ agent = DDPG(state_size=33,
                 sample_batch_size=20,
                 lr_actor=0.0001,
                 lr_critic=0.0001,
+                update_every=10,
                 gamma=0.99,
                 tau=0.01,
                 memory_size=int(1e6),
@@ -124,3 +141,6 @@ agent = DDPG(state_size=33,
  
 ##### Observation
 * converged well from about 20000 trajectories base on lucky.
+
+# Other RL Works
+* [unity banana navigation](https://github.com/masszhou/unity_banana_navigation)
