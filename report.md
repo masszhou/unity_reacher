@@ -88,7 +88,7 @@ $$
 * So we introduce importance sampling to solve this problem, to use old **SIMILAR** samples to calculate new expected returns from new policy, to save sampling time.
 
 ##### Model
-<img src="../imgs/important_sampling.jpeg"  width="305" />
+<img src="./imgs/important_sampling.jpeg"  width="305" />
 
 * I agree this is too small to read, so I prefer understand this with an example. :-)
 
@@ -198,10 +198,10 @@ This project was solve by DDPG with batch sampling from 20 agents.
   * The reward system is critical for RL models.
   * The tracking task is easier in my opinion.
 * an example animation of training 3-bars arm
-<img src="../imgs/arm2d_train.gif"  width="300" />
+<img src="./imgs/arm2d_train.gif"  width="300" />
 
 * an example animation of results
-<img src="../imgs/arm2d_test.gif"  width="300" />
+<img src="./imgs/arm2d_test.gif"  width="300" />
 
 ##### Setup
 * With parameters
