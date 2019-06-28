@@ -22,6 +22,7 @@ class DDPG:
                  batch_size=128,       # minibatch size
                  gamma=0.99,           # discount factor
                  tau=1e-3,           # for soft update of target parameters
+                 update_every=10,
                  lr_actor=1e-4,
                  lr_critic=1e-3,
                  random_seed=2):
@@ -49,6 +50,9 @@ class DDPG:
 
         # Noise process
         self.noise = OUNoise(action_size, random_seed)
+
+        self.learn_steps = 0
+        self.update_every = update_every
 
     def reset(self):
         self.noise.reset()
@@ -121,8 +125,11 @@ class DDPG:
         self.actor_optimizer.step()
 
         # ----------------------- update target networks ----------------------- #
-        self.soft_update(self.critic_local, self.critic_target, self.params["tau"])
-        self.soft_update(self.actor_local, self.actor_target, self.params["tau"])
+        if self.learn_steps % self.update_every == 0:
+            self.soft_update(self.critic_local, self.critic_target, self.params["tau"])
+            self.soft_update(self.actor_local, self.actor_target, self.params["tau"])
+
+        self.learn_steps += 1
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
