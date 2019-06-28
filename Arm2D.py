@@ -49,7 +49,7 @@ class Viewer(pyglet.window.Window):
                                                      260, 250]),            # x4, y4
                                             ('c3B', (249, 86, 86) * 4,)))    # color
 
-        self.frame_buffer = deque(maxlen=200)
+        self.frame_buffer = deque(maxlen=400)
         self.frame_counter = 0
 
     def on_draw(self):
@@ -57,7 +57,7 @@ class Viewer(pyglet.window.Window):
         self.clear()
         self.batch.draw()
 
-        if self.frame_counter % 100 == 0:
+        if self.frame_counter % 20 == 0:
             # return_rgb_array
             buffer = pyglet.image.get_buffer_manager().get_color_buffer()
             image_data = buffer.get_image_data()
