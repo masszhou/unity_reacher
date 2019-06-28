@@ -39,8 +39,12 @@ if __name__ == "__main__":
                  memory_size=int(1e6),
                  batch_size=128)
 
-    n_episode = 1000
+    n_episode = 100
     max_t = 1000
+
+    agent.actor_local.load_state_dict(torch.load('checkpoint_actor_reacher20.pth'))
+    agent.critic_local.load_state_dict(torch.load('checkpoint_critic_reacher20.pth'))
+
 
     for i_episode in range(n_episode):
         env_info = env.reset(train_mode=False)[brain_name]     # reset the environment
@@ -59,7 +63,7 @@ if __name__ == "__main__":
             batch_rewards = env_info.rewards                         # get reward (for each agent)
             batch_dones = env_info.local_done                        # see if episode finished
 
-            agent.step(batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones)
+            #agent.step(batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones)
 
             scores += env_info.rewards                         # update the score (for each agent)
             batch_states = batch_next_states                               # roll over states to next time step
@@ -68,7 +72,7 @@ if __name__ == "__main__":
             if np.any(batch_dones):                                  # exit loop if episode finished
                 break
         print('episode {}, steps {}, avg_score : {}'.format(i_episode, steps, np.mean(scores)))
-        torch.save(agent.actor_local.state_dict(), 'checkpoint_actor_reacher20.pth')
-        torch.save(agent.critic_local.state_dict(), 'checkpoint_critic_reacher20.pth')
+        #torch.save(agent.actor_local.state_dict(), 'checkpoint_actor_reacher20.pth')
+        #torch.save(agent.critic_local.state_dict(), 'checkpoint_critic_reacher20.pth')
 
     env.close()
