@@ -88,10 +88,11 @@ $$
 * So we introduce importance sampling to solve this problem, to use old **SIMILAR** samples to calculate new expected returns from new policy, to save sampling time.
 
 ##### Model
-<img src="./imgs/important_sampling.jpeg"  width="305" />
+![importance_sampling](./imgs/important_sampling.jpeg "Importance Sampling")
 
-* I agree this is too small to read, so I prefer understand this with an example. :-)
+<!-- <img src="./imgs/important_sampling.jpeg"  width="305" /> -->
 
+* I would like to use an example to elaborate how importance sampling works
 
 ##### an Example instead of Explanation
 * we have $f(1)=2, f(2)=3, f(3)=4$ with $x\sim p, p(x=1)=\frac{1}{3},p(x=2)=\frac{1}{3},p(x=3)=\frac{1}{3}$
@@ -198,10 +199,12 @@ This project was solve by DDPG with batch sampling from 20 agents.
   * The reward system is critical for RL models.
   * The tracking task is easier in my opinion.
 * an example animation of training 3-bars arm
-<img src="./imgs/arm2d_train.gif"  width="300" />
+<!-- <img src="./imgs/arm2d_train.gif"  width="300" /> -->
+![arm2d_train](./imgs/arm2d_train.gif "arm2d_train")
 
 * an example animation of results
-<img src="./imgs/arm2d_test.gif"  width="300" />
+<!-- <img src="./imgs/arm2d_test.gif"  width="300" /> -->
+![arm2d_test](./imgs/arm2d_test.gif "arm2d_test")
 
 ##### Setup
 * With parameters
@@ -265,3 +268,7 @@ agent = DDPG(state_size=33,
  
 ##### Observation
 * converged well from about 20000 trajectories base on lucky.
+* Then performance has some fluctuations, until converge again
+
+##### Training Log
+![training_score](./imgs/training_score.png "training_score")
