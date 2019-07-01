@@ -15,6 +15,9 @@
     - [2.2 Implementation of DDPG to solve Unity Reacher](#22-Implementation-of-DDPG-to-solve-Unity-Reacher)
         - [Setup](#Setup-1)
         - [Observation](#Observation-1)
+        - [Training Log](#Training-Log)
+        - [Testing Log](#Testing-Log)
+        - [Replay](#Replay-1)
 - [Other RL Works](#Other-RL-Works)
 
 # Project Continuous Control
@@ -37,7 +40,6 @@ If anybody found the definition, please notify me. Really thanks :-)
 
 The environment produce 20 parallel agents to help collection data faster.
 **BUT** not really distributed **training** in this repository, I only implement a DDPG with distributed **sampling**. 
-Sorry for the section name.
 
 ### 1.3 Solving the Environment
 
@@ -142,5 +144,15 @@ agent = DDPG(state_size=33,
 ##### Observation
 * converged well from about 20000 trajectories base on lucky.
 
+##### Training Log
+![training log](./imgs/training_score.png "training_score")
+
+##### Testing Log
+![test log](./imgs/test_score.png "test_score")
+
+##### Replay
+```
+python continuous_control.py
+```
 # Other RL Works
 * [unity banana navigation](https://github.com/masszhou/unity_banana_navigation)

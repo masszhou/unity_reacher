@@ -1,3 +1,31 @@
+- [1. A short Review of Policy-Based Method](#1-A-short-Review-of-Policy-Based-Method)
+    - [1.2 Estimate Expected Return](#12-Estimate-Expected-Return)
+    - [1.3 REINFORCE](#13-REINFORCE)
+        - [Model](#Model)
+        - [Additional explanation](#Additional-explanation)
+        - [Algorithm](#Algorithm)
+    - [1.4 Importance Sampling](#14-Importance-Sampling)
+        - [Motivation](#Motivation)
+        - [Model](#Model-1)
+        - [An Example instead of Explanation](#An-Example-instead-of-Explanation)
+    - [1.5 Trust region policy optimization (TRPO)](#15-Trust-region-policy-optimization-TRPO)
+    - [1.6 Proximal Policy Optimization (PPO)](#16-Proximal-Policy-Optimization-PPO)
+- [2. Actor-Critic](#2-Actor-Critic)
+    - [2.1 Deep Deterministic Policy Gradient (DDPG)](#21-Deep-Deterministic-Policy-Gradient-DDPG)
+        - [Train Process](#Train-Process)
+- [2. Project Walk-through](#2-Project-Walk-through)
+    - [2.1 Dummy test with 2D Arm env](#21-Dummy-test-with-2D-Arm-env)
+        - [Motivation](#Motivation-1)
+        - [Setup](#Setup)
+        - [Observation](#Observation)
+        - [Replay](#Replay)
+        - [Some Thinking](#Some-Thinking)
+    - [2.2 Implementation of DDPG to solve Unity Reacher](#22-Implementation-of-DDPG-to-solve-Unity-Reacher)
+        - [Setup](#Setup-1)
+        - [Observation](#Observation-1)
+        - [Training Log](#Training-Log)
+        - [Testing Log](#Testing-Log)
+
 # 1. A short Review of Policy-Based Method
 * difference between value-based and policy-based method
   * value-based need to establish Q table, and build the optimal policy based on maximum q value
@@ -94,7 +122,7 @@ $$
 
 * I would like to use an example to elaborate how importance sampling works
 
-##### an Example instead of Explanation
+##### An Example instead of Explanation
 * we have $f(1)=2, f(2)=3, f(3)=4$ with $x\sim p, p(x=1)=\frac{1}{3},p(x=2)=\frac{1}{3},p(x=3)=\frac{1}{3}$
 * we denote $x\sim p$ as old policy, and we have the expectation of **old** samples as
 $$
@@ -129,16 +157,11 @@ $$
 
 # 2. Actor-Critic
 Actor-Critic is architecture which combined policy-based method and value-based method.
+I plan to write this A3C A2C in next project
+* Asynchronous Advantage Actor-Critic (A3C)
+* synchronous Advantage Actor-Critic (A2C)
 
-### 2.1 Asynchronous Advantage Actor-Critic (A3C)
-* I plan to write this section in next project
-
-
-### 2.2 synchronous Advantage Actor-Critic (A2C)
-* I plan to write this section in next project
-
-
-### 2.3 Deep Deterministic Policy Gradient (DDPG)
+### 2.1 Deep Deterministic Policy Gradient (DDPG)
 DDPG was used for this Unity-Reacher project.
 I must elaborate DDPG.
 
@@ -199,11 +222,11 @@ This project was solve by DDPG with batch sampling from 20 agents.
   * The reward system is critical for RL models.
   * The tracking task is easier in my opinion.
 * an example animation of training 3-bars arm
-<!-- <img src="./imgs/arm2d_train.gif"  width="300" /> -->
+
 ![arm2d_train](./imgs/arm2d_train.gif "arm2d_train")
 
 * an example animation of results
-<!-- <img src="./imgs/arm2d_test.gif"  width="300" /> -->
+
 ![arm2d_test](./imgs/arm2d_test.gif "arm2d_test")
 
 ##### Setup
@@ -241,13 +264,15 @@ python continuous_control_2d.py
 * Without sensing ability, both reward and states are a bit implicit.
 * since the solution space is much hard, we can encounter gradient explode/vanish more probably.
   * we can either clip the gradient
-  ```python
-  self.critic_optimizer.zero_grad()
-  critic_loss.backward()
-  torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
-  self.critic_optimizer.step()
-  ```
-  * or add batchnorm between the layer
+  
+```python
+self.critic_optimizer.zero_grad()
+critic_loss.backward()
+torch.nn.utils.clip_grad_norm(self.critic_local.parameters(), 1)
+self.critic_optimizer.step()
+```
+
+  * or add batchnorm before Relu layers
   * my intuitive thinking. clip the critic network is enough, since actor network take output of critic network as baseline.
   * In this repository, I used BN solution.
 
@@ -272,3 +297,6 @@ agent = DDPG(state_size=33,
 
 ##### Training Log
 ![training_score](./imgs/training_score.png "training_score")
+
+##### Testing Log
+![training_score](./imgs/test_score.png "training_score")
