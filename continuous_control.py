@@ -66,8 +66,8 @@ def test(env, brain_name, agent, n_episode=100):
 
 if __name__ == "__main__":
 
-    # env = UnityEnvironment(file_name='./Reacher_Linux_20/Reacher.x86_64', no_graphics=True)
-    env = UnityEnvironment(file_name='./Reacher_Linux_20/Reacher.x86_64')
+    env = UnityEnvironment(file_name='./Reacher_Linux_20/Reacher.x86_64', no_graphics=True)
+    # env = UnityEnvironment(file_name='./Reacher_Linux_20/Reacher.x86_64')
 
     # get the default brain
     brain_name = env.brain_names[0]
@@ -100,7 +100,7 @@ if __name__ == "__main__":
                  memory_size=int(1e6),
                  batch_size=128)
 
-    train(env, brain_name, agent)
+    # train(env, brain_name, agent)
     test(env, brain_name, agent)
 
     env.close()
