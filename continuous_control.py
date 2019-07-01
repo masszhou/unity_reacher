@@ -3,6 +3,67 @@ import numpy as np
 import torch
 from DDPG_batchsample import DDPG
 
+
+def train(env, brain_name, agent, n_episode=100, max_t=1000):
+
+    for i_episode in range(n_episode):
+        env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
+
+        batch_states = env_info.vector_observations  # get the current state (for each agent)
+        scores = np.zeros(num_agents)  # initialize the score (for each agent)
+
+        steps = 0
+        while True:
+            # batch_actions = np.random.randn(num_agents, action_size) # select an action (for each agent)
+            # batch_actions = np.clip(actions, -1, 1)                  # all actions between -1 and 1
+            batch_actions = agent.act(batch_states)
+            #
+            env_info = env.step(batch_actions)[brain_name]  # send all actions to tne environment
+            batch_next_states = env_info.vector_observations  # get next state (for each agent)
+            batch_rewards = env_info.rewards  # get reward (for each agent)
+            batch_dones = env_info.local_done  # see if episode finished
+
+            # agent.step(batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones)
+
+            scores += env_info.rewards  # update the score (for each agent)
+            batch_states = batch_next_states  # roll over states to next time step
+
+            steps += 1
+            if np.any(batch_dones):  # exit loop if episode finished
+                break
+        print('episode {}, steps {}, avg_score : {}'.format(i_episode, steps, np.mean(scores)))
+        torch.save(agent.actor_local.state_dict(), 'checkpoint_actor_reacher20.pth')
+        torch.save(agent.critic_local.state_dict(), 'checkpoint_critic_reacher20.pth')
+
+
+def test(env, brain_name, agent, n_episode=100):
+    agent.actor_local.load_state_dict(torch.load('checkpoint_actor_reacher20.pth'))
+    agent.critic_local.load_state_dict(torch.load('checkpoint_critic_reacher20.pth'))
+
+    for i_episode in range(n_episode):
+        env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
+
+        batch_states = env_info.vector_observations  # get the current state (for each agent)
+        scores = np.zeros(num_agents)  # initialize the score (for each agent)
+
+        steps = 0
+        while True:
+            batch_actions = agent.act(batch_states)
+
+            env_info = env.step(batch_actions)[brain_name]  # send all actions to tne environment
+            batch_next_states = env_info.vector_observations  # get next state (for each agent)
+            batch_rewards = env_info.rewards  # get reward (for each agent)
+            batch_dones = env_info.local_done  # see if episode finished
+
+            scores += env_info.rewards  # update the score (for each agent)
+            batch_states = batch_next_states  # roll over states to next time step
+
+            steps += 1
+            if np.any(batch_dones):  # exit loop if episode finished
+                break
+        print('episode {}, steps {}, avg_score : {}'.format(i_episode, steps, np.mean(scores)))
+
+
 if __name__ == "__main__":
 
     # env = UnityEnvironment(file_name='./Reacher_Linux_20/Reacher.x86_64', no_graphics=True)
@@ -39,40 +100,7 @@ if __name__ == "__main__":
                  memory_size=int(1e6),
                  batch_size=128)
 
-    n_episode = 100
-    max_t = 1000
-
-    agent.actor_local.load_state_dict(torch.load('checkpoint_actor_reacher20.pth'))
-    agent.critic_local.load_state_dict(torch.load('checkpoint_critic_reacher20.pth'))
-
-
-    for i_episode in range(n_episode):
-        env_info = env.reset(train_mode=False)[brain_name]     # reset the environment
-
-        batch_states = env_info.vector_observations                  # get the current state (for each agent)
-        scores = np.zeros(num_agents)                          # initialize the score (for each agent)
-
-        steps = 0
-        while True:
-            # batch_actions = np.random.randn(num_agents, action_size) # select an action (for each agent)
-            # batch_actions = np.clip(actions, -1, 1)                  # all actions between -1 and 1
-            batch_actions = agent.act(batch_states)
-    #
-            env_info = env.step(batch_actions)[brain_name]           # send all actions to tne environment
-            batch_next_states = env_info.vector_observations         # get next state (for each agent)
-            batch_rewards = env_info.rewards                         # get reward (for each agent)
-            batch_dones = env_info.local_done                        # see if episode finished
-
-            #agent.step(batch_states, batch_actions, batch_rewards, batch_next_states, batch_dones)
-
-            scores += env_info.rewards                         # update the score (for each agent)
-            batch_states = batch_next_states                               # roll over states to next time step
-
-            steps += 1
-            if np.any(batch_dones):                                  # exit loop if episode finished
-                break
-        print('episode {}, steps {}, avg_score : {}'.format(i_episode, steps, np.mean(scores)))
-        #torch.save(agent.actor_local.state_dict(), 'checkpoint_actor_reacher20.pth')
-        #torch.save(agent.critic_local.state_dict(), 'checkpoint_critic_reacher20.pth')
+    train(env, brain_name, agent)
+    test(env, brain_name, agent)
 
     env.close()
